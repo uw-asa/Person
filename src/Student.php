@@ -70,6 +70,39 @@ class Student extends Person
     }
 
     /**
+     * Perform an enrollment search on SWS, per
+     *     https://wiki.cac.washington.edu/display/SWS/Enrollment+Search+Resource+V5
+     *
+     * @param string[] $extraSearchTerms Associative array of search terms ex: ["transcriptable_course" => "all"].
+     * @return mixed Associative array object of registration search results
+     * @throws \Exception If provided with invalid regid, or invalid search terms.
+     */
+    public function enrollmentSearch(array $extraSearchTerms = [])
+    {
+
+        $validSearchKeys = [
+             "verbose", "changed_since_date", "transcriptable_course"
+        ];
+        $invalidSearchKeys = array_diff(array_keys($extraSearchTerms), $validSearchKeys);
+        if ($invalidSearchKeys !== []) {
+            throw new \Exception("Invalid search keys [" . implode(", ", $invalidSearchKeys) . "]" .
+                "provided as extra search terms. Only [" . implode(", ", $validSearchKeys) . "] allowed");
+        }
+
+        $defaultSearchTerms = [
+        ];
+
+        $searchTerms = array_merge($defaultSearchTerms, $extraSearchTerms);
+        $searchTerms["reg_id"] = $this->getAttr("UWRegID");
+
+        $resp = static::getStudentConnection()->execGET(
+            "enrollment.json?" . http_build_query($searchTerms)
+        );
+
+        return static::parse($resp->getData())["Enrollments"];
+    }
+
+    /**
      * @param string $identifierKey
      * @param string $identifierValue
      * @return null|Student

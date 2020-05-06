@@ -114,6 +114,7 @@ The following methods may be used to query the database:
     // Available only to Student
     $student = Student::fromStudentNumber($studentnumber);
     $registrations = $student->registrationSearch($year, $quarter, [$extraSearchTerms]);
+    $enrollments = $student->enrollmentSearch([$extraSearchTerms]);
     
     // Available only to Employee
     $employee = Employee::fromEmployeeID($employeeid);
@@ -165,6 +166,23 @@ You can include optional parameters in your registration search, per the [Regist
 ```
     $student = Student::fromStudentNumber("1033334");
     $registrations = $student->registrationSearch("2009", "summer", ["is_active" => "true"]);
+```
+
+The `Student::enrollmentSearch` method returns an array of [Enrollment Resources](https://wiki.cac.washington.edu/display/SWS/Enrollment+Resource+V5), in associative array format:
+```
+   $student = Student::fromStudentNumber("1033334");
+   $enrollments = $student->enrollmentSearch();
+   
+   foreach ($enrollments as $enrollment) {
+       echo $enrollment["Year"];
+       echo $enrollment["Quarter"];
+   }
+```
+
+You can include optional parameters in your enrollment search, per the [Enrollment Search Resource spec](https://wiki.cac.washington.edu/display/SWS/Enrollment+Search+Resource+V5):
+```
+    $student = Student::fromStudentNumber("1033334");
+    $enrollments = $student->enrollmentSearch(["verbose" => "true"]);
 ```
 
 Exposed Attributes
